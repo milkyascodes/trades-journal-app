@@ -11,7 +11,7 @@ function NoteList() {
 
   const handleChange = (e) => {};
   return (
-    <div className="rounded-sm p-3 mt-5 flex gap-5 w-full flex-col justify-items-start  ">
+    <div className=" bg-white rounded-sm p-3    flex gap-5 w-full flex-col justify-items-start  ">
       <div className="flex items-center justify-between">
         <h2>My Notes</h2>
         <select value={filter} onChange={handleChange}>

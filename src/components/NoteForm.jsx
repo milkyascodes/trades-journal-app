@@ -5,43 +5,75 @@ function NoteForm() {
   const dispatch = useDispatch();
   const editingTask = useSelector((state) => state.notes.editingTask);
   const [title, setTitle] = useState("");
+  const [takProfit, setTakeProfit] = useState(null);
+  const [stopLoss, setStopLoss] = useState(null);
   const [reason, setReason] = useState("");
   const [lesson, setLesson] = useState("");
   const [status, setStatus] = useState("");
   const handleSubmit = (e) => {};
 
   return (
-    <div className="w-full max-w-sm bg-white p-6 rounded-md shadow-md">
+    <div className="w-full md:max-w-sm bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingTask ? "Update Journal" : "Add Journal"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Trade Name
-          </label>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            type="text"
-            placeholder="Enter trade name"
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="flex w-full items-center justify-between  gap-4">
+          <div className="w-full  flex-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Trade Name
+            </label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              type="text"
+              placeholder="Enter trade name"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="w-full  flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              onChange={(e) => setStatus(e.target.value)}
+              value={status}
+              className="w-full p-3 border-none rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option>Profit</option>
+              <option>Loss</option>
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            onChange={(e) => setStatus(e.target.value)}
-            value={status}
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option>Profit</option>
-            <option>Loss</option>
-          </select>
+        <div className="flex w-full items-center gap-4">
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Take Profit
+            </label>
+            <input
+              value={takProfit}
+              onChange={(e) => setTakeProfit(e.target.value)}
+              type="number"
+              placeholder="eg 0.1233"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className=" w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Stop Loss
+            </label>
+            <input
+              value={takProfit}
+              onChange={(e) => setTakeProfit(e.target.value)}
+              type="number"
+              placeholder="eg 0.1233"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
 
         <div>
@@ -52,26 +84,26 @@ function NoteForm() {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows="4"
-            placeholder="Write your message"
+            placeholder="Write your reason"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           ></textarea>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            What did I understand
+            What I learned
           </label>
           <textarea
             value={lesson}
             onChange={(e) => setLesson(e.target.value)}
             rows="4"
-            placeholder="Write your message"
+            placeholder="Write your lesson"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           ></textarea>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-400 text-white py-3 rounded-md hover:bg-blue-700 transition"
+          className="w-full bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
         >
           {editingTask ? "Update Journal" : "Add Journal"}
         </button>
