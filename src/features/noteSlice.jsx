@@ -1,10 +1,10 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, current, nanoid } from "@reduxjs/toolkit";
 
 const initialState = {
   notes: [],
   loading: false,
   error: "",
-  status: "All",
+  status: "Profit",
   editingNote: null,
 };
 const noteSlice = createSlice({
@@ -13,7 +13,7 @@ const noteSlice = createSlice({
   reducers: {
     addNote(state, action) {
       const note = action.payload;
-      console.log("form", note);
+      console.log("form,status", note.status);
       state.notes.push({
         id: nanoid(),
         title: note.title,
@@ -21,8 +21,10 @@ const noteSlice = createSlice({
         lessonLearned: note.lesson,
         stopLoss: note.stopLoss,
         takeProfit: note.takeProfit,
+        tradeDate: note.tradeDate,
         status: note.status,
       });
+      console.log("MYform", current(state.notes));
     },
     deleteNote() {},
     updateNote() {},

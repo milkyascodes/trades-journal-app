@@ -3,15 +3,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNote } from "../features/noteSlice";
 
 function NoteForm() {
+  const forexPairs = [
+    "EUR/USD",
+    "USD/JPY",
+    "GBP/USD",
+    "USD/CHF",
+    "AUD/USD",
+    "USD/CAD",
+    "NZD/USD",
+    "EUR/GBP",
+    "EUR/JPY",
+    "GBP/JPY",
+  ];
+
   const dispatch = useDispatch();
   const editingTask = useSelector((state) => state.notes.editingTask);
   const [form, setForm] = useState({
-    title: "",
+    title: "EUR/USD",
     takeProfit: null,
     stopLoss: null,
     reason: "",
     lesson: "",
-    status: "",
+    status: "Profit",
+    tradeDate: "",
   });
 
   const handleChange = (e) => {
@@ -31,39 +45,57 @@ function NoteForm() {
     dispatch(addNote(form));
 
     setForm({
-      title: "",
+      title: "EUR/USD",
       takeProfit: null,
       stopLoss: null,
       reason: "",
       lesson: "",
-      status: "",
+      status: "Profit",
+      tradeDate: "",
     });
   };
 
   return (
-    <div className="w-full md:max-w-sm bg-white p-6 rounded-md shadow-md">
+    <div className="w-full md:max-w-md bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingTask ? "Update Journal" : "Add Journal"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* name /status */}
-        <div className="flex w-full items-center justify-between  gap-4">
-          <div className="w-full  flex-3">
+        <div className="flex w-full items-center justify-between  gap-2">
+          <div className="w-full flex-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trade Name
+              Trade Pair
             </label>
-            <input
-              name="title"
+            <select
+              name="title" // keep the same state key
               value={form.title}
               onChange={handleChange}
-              type="text"
-              placeholder="Enter trade name"
+              className="w-full p-3 border rounded-md focus:outline-none "
+            >
+              {forexPairs.map((pair) => (
+                <option key={pair} value={pair}>
+                  {pair}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full flex-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Trade Date
+            </label>
+            <input
+              type="date"
+              name="tradeDate"
+              value={form.tradeDate}
+              onChange={handleChange}
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div className="w-full  flex-1">
+          <div className="w-full  flex-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Status
             </label>
