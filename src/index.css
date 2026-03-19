@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.form {
+    transition: ease 1s;
+}

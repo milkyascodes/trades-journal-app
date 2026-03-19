@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addNote, updateNote } from "../features/noteSlice";
+import { extractTextFromImage } from "../extract";
+import { parseTradeInfo } from "../format";
 
 function NoteForm() {
   const forexPairs = [
@@ -27,6 +29,12 @@ function NoteForm() {
     tradeDate: "",
   });
 
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [isImageExtracted, setIsImageExtracted] = useState(false);
+
+  const handleImageUpload = (file) => {
+    setUploadedImage(file);
+  };
   useEffect(() => {
     if (editingNote) {
       setForm({
@@ -43,10 +51,7 @@ function NoteForm() {
   }, [editingNote]);
 
   const handleChange = (e) => {
-    const name = e.target.name;
-    const value =
-      e.target.type === "number" ? Number(e.target.value) : e.target.value;
-
+    const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -55,153 +60,145 @@ function NoteForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (editingNote) {
       console.log("editing", form);
 
-      dispatch(updateNote(form));
+      // dispatch(updateNote(form));
     } else {
       dispatch(addNote(form));
+      console.log("form", form);
     }
     console.log("cancel");
+    setIsImageExtracted(false);
 
     setForm({
-      title: "EUR/USD",
-      takeProfit: null,
-      stopLoss: null,
       reason: "",
       lesson: "",
-      status: "Profit",
-      tradeDate: "",
     });
+    setUploadedImage(null);
   };
+
+  const handlePhotoSubmit = async (e) => {
+    e.preventDefault();
+
+    if (uploadedImage) {
+      const text = await extractTextFromImage(uploadedImage);
+
+      // console.log("extracted:", text);
+      const tradeInfo = parseTradeInfo(text);
+      // console.log("tradeInfo>>>", tradeInfo);
+
+      const formatDate = (dateString) => {
+        if (!dateString) return "";
+
+        const [datePart] = dateString.split(" "); // remove time
+        return datePart.replace(/\./g, "-"); // convert to YYYY-MM-DD
+      };
+
+      setForm((prev) => ({
+        ...prev,
+        tradeDate: formatDate(tradeInfo.tradeDate) || prev.tradeDate,
+        takeProfit: tradeInfo.takeProfit ?? prev.takeProfit,
+        stopLoss: tradeInfo.stopLoss ?? prev.stopLoss,
+        title: tradeInfo.pair ?? prev.title,
+        status: tradeInfo.tradeType,
+      }));
+      setIsImageExtracted(true);
+    }
+    setUploadedImage(null);
+  };
+
+  // console.log("image", uploadedImage);
 
   return (
     <div className="w-full md:max-w-md bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingNote ? "Update Journal" : "Add Journal"}
       </h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* name /status */}
-        <div className="flex w-full items-center justify-between  gap-2">
-          <div className="w-full flex-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trade Pair
-            </label>
-            <select
-              required
-              name="title" // keep the same state key
-              value={form.title}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-md focus:outline-none "
-            >
-              {forexPairs.map((pair) => (
-                <option key={pair} value={pair}>
-                  {pair}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="w-full flex-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trade Date
-            </label>
-            <input
-              required
-              type="date"
-              name="tradeDate"
-              value={form.tradeDate}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="w-full  flex-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              required
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className="w-full p-3 border-none rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Profit</option>
-              <option>Loss</option>
-            </select>
-          </div>
-        </div>
-
-        {/* profit / loss  */}
-        <div className="flex w-full items-center gap-4">
-          <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Take Profit
-            </label>
-            <input
-              required
-              name="takeProfit"
-              value={form.takeProfit ?? ""}
-              onChange={handleChange}
-              type="number"
-              placeholder="eg 0.1233"
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className=" w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stop Loss
-            </label>
-            <input
-              required
-              name="stopLoss"
-              value={form.stopLoss ?? ""}
-              onChange={handleChange}
-              type="number"
-              placeholder="eg 0.1233"
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* reason / lesson */}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Why I took this trade
-          </label>
-          <textarea
-            name="reason"
-            value={form.reason}
-            onChange={handleChange}
-            rows="4"
-            placeholder="Write your reason"
+      <form onSubmit={handlePhotoSubmit} className="">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Upload Screenshot
+        </label>
+        <div className="flex gap-4">
+          <input
+            type="file"
+            accept="image/*"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
-        </div> */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            What I learned
-          </label>
-          <textarea
-            name="lesson"
-            value={form.lesson}
-            onChange={handleChange}
-            rows="4"
-            placeholder="Write your lesson"
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
-        </div>
+            onChange={(e) => handleImageUpload(e.target.files[0])}
+          />
 
-        <button
-          type="submit"
-          className="w-full bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
-        >
-          {editingNote ? "Update Journal" : "Add Journal"}
-        </button>
+          <button
+            type="submit"
+            className="w-[40%] bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
+          >
+            {editingNote ? "Update photo" : "Add photo"}
+          </button>
+        </div>
       </form>
+      {/* ....... */}
+
+      {isImageExtracted && (
+        <div className="mt-4 bg-amber-50 border border-black/10 rounded-md p-3">
+          <div className="flex justify-between mb-2">
+            <div className="flex gap-2">
+              <h1 className="text-2xl">{form.title}</h1>{" "}
+              <small>{form.status}</small>
+            </div>
+
+            <p className="opacity-90 text-sm">{form.tradeDate}</p>
+          </div>
+          <div className="flex  justify-between ">
+            <p className="flex-1">Stop Loss</p>
+            <p className="flex-3">→ {form.stopLoss}</p>
+          </div>
+          <div className="flex  justify-between">
+            <p className="flex-1">Take Profit</p>
+            <p className="flex-3">→ {form.takeProfit}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ..... */}
+
+      {isImageExtracted && (
+        <form onSubmit={handleSubmit} className="form mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Why I took this trade
+            </label>
+            <textarea
+              name="reason"
+              value={form.reason}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Write your reason"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              What I learned
+            </label>
+            <textarea
+              name="lesson"
+              value={form.lesson}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Write your lesson"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
+          >
+            {editingNote ? "Update Journal" : "Add Journal"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

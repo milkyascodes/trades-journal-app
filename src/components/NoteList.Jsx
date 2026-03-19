@@ -20,13 +20,11 @@ function NoteList() {
     }
   }, [notes, filter]);
 
-  console.log("wa", filteredNotes);
-
   return (
     <div className=" bg-gray-100 rounded-sm  p-6   flex gap-5 w-full flex-col justify-items-start  ">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold mb-4 text-center">My Trades</h2>
-        {filteredNotes.length !== 0 && (
+        <h2 className="text-xl font-semibold  text-center">My Trades</h2>
+        {/* {filteredNotes.length !== 0 && (
           //  & check if it exists
           <select value={filter} onChange={handleChange}>
             <option>All</option>
@@ -37,7 +35,7 @@ function NoteList() {
               Loss
             </option>
           </select>
-        )}
+        )} */}
       </div>
 
       <ul className="w-full ">
