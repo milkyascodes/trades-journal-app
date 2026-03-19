@@ -26,10 +26,30 @@ const noteSlice = createSlice({
       });
       console.log("MYform", current(state.notes));
     },
-    deleteNote() {},
-    updateNote() {},
+    deleteNote(state, action) {
+      state.notes = state.notes.filter((note) => note.id !== action.payload);
+    },
+    setEditingNote(state, action) {
+      state.editingNote = action.payload;
+    },
+    updateNote(state, action) {
+      console.log("action", action.payload);
+
+      const index = state.notes.findIndex((index) => {
+        return index.id === action.payload.id;
+      });
+
+      if (index !== -1) {
+        // console.log("old", current(state.notes[index]));
+
+        state.notes[index] = action.payload;
+        // console.log("new", current(state.notes[index]));
+      }
+      state.editingNote = null;
+    },
   },
 });
 
-export const { addNote, deleteNote, updateNote } = noteSlice.actions;
+export const { addNote, deleteNote, updateNote, setEditingNote } =
+  noteSlice.actions;
 export default noteSlice.reducer;

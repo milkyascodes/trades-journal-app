@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNote } from "../features/noteSlice";
+import { addNote, updateNote } from "../features/noteSlice";
 
 function NoteForm() {
   const forexPairs = [
@@ -15,9 +15,8 @@ function NoteForm() {
     "EUR/JPY",
     "GBP/JPY",
   ];
-
   const dispatch = useDispatch();
-  const editingTask = useSelector((state) => state.notes.editingTask);
+  const editingNote = useSelector((state) => state.notes.editingNote);
   const [form, setForm] = useState({
     title: "EUR/USD",
     takeProfit: null,
@@ -27,6 +26,21 @@ function NoteForm() {
     status: "Profit",
     tradeDate: "",
   });
+
+  useEffect(() => {
+    if (editingNote) {
+      setForm({
+        id: editingNote.id,
+        title: editingNote.title,
+        takeProfit: editingNote.takeProfit,
+        stopLoss: editingNote.stopLoss,
+        reason: editingNote.reason,
+        lesson: editingNote.lesson,
+        status: editingNote.status,
+        tradeDate: editingNote.tradeDate,
+      });
+    }
+  }, [editingNote]);
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -41,8 +55,14 @@ function NoteForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (editingNote) {
+      console.log("editing", form);
 
-    dispatch(addNote(form));
+      dispatch(updateNote(form));
+    } else {
+      dispatch(addNote(form));
+    }
+    console.log("cancel");
 
     setForm({
       title: "EUR/USD",
@@ -58,7 +78,7 @@ function NoteForm() {
   return (
     <div className="w-full md:max-w-md bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4 text-center">
-        {editingTask ? "Update Journal" : "Add Journal"}
+        {editingNote ? "Update Journal" : "Add Journal"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,6 +89,7 @@ function NoteForm() {
               Trade Pair
             </label>
             <select
+              required
               name="title" // keep the same state key
               value={form.title}
               onChange={handleChange}
@@ -87,6 +108,7 @@ function NoteForm() {
               Trade Date
             </label>
             <input
+              required
               type="date"
               name="tradeDate"
               value={form.tradeDate}
@@ -100,6 +122,7 @@ function NoteForm() {
               Status
             </label>
             <select
+              required
               name="status"
               value={form.status}
               onChange={handleChange}
@@ -118,6 +141,7 @@ function NoteForm() {
               Take Profit
             </label>
             <input
+              required
               name="takeProfit"
               value={form.takeProfit ?? ""}
               onChange={handleChange}
@@ -132,6 +156,7 @@ function NoteForm() {
               Stop Loss
             </label>
             <input
+              required
               name="stopLoss"
               value={form.stopLoss ?? ""}
               onChange={handleChange}
@@ -143,7 +168,7 @@ function NoteForm() {
         </div>
 
         {/* reason / lesson */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Why I took this trade
           </label>
@@ -155,7 +180,7 @@ function NoteForm() {
             placeholder="Write your reason"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           ></textarea>
-        </div>
+        </div> */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             What I learned
@@ -174,7 +199,7 @@ function NoteForm() {
           type="submit"
           className="w-full bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
         >
-          {editingTask ? "Update Journal" : "Add Journal"}
+          {editingNote ? "Update Journal" : "Add Journal"}
         </button>
       </form>
     </div>
