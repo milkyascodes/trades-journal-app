@@ -6,6 +6,7 @@ function NoteList() {
   const notes = useSelector((state) => state.notes.notes);
   const dispatch = useDispatch();
   const [filter, setFilter] = useState("All");
+  const [viewMore, setViewMore] = useState(null);
 
   const filteredNotes =
     filter === "All" ? notes : notes.filter((note) => note.status === filter);
@@ -38,32 +39,59 @@ function NoteList() {
         )} */}
       </div>
 
-      <ul className="w-full ">
+      <ul className="w-full flex flex-wrap gap-4">
         {filteredNotes?.map((note) => (
           <li
             key={note.id}
-            className={`border-l-3 ${note.status === "Profit" ? " border-green-300" : " border-red-300"} flex items-center w-full justify-between bg-white mb-2 p-3 rounded-sm `}
+            className={`border-l-3 ${note.status === "Profit" ? " border-green-300" : " border-red-300"}  bg-white mb-2 p-3 rounded-sm  hover:bg-amber-50 w-full md:w-65 h-fit`}
           >
-            <div>
-              <p className="mb-1 text-xs opacity-40 italic ">
-                {note.tradeDate}
+            <div className="flex items-center w-full justify-between">
+              <div>
+                <p className="mb-1 text-xs opacity-40 italic ">
+                  {note.tradeDate}
+                </p>
+                <p className="text-lg">{note.title}</p>
+              </div>
+              <p
+                className=" cursor-pointer"
+                onClick={() =>
+                  setViewMore((state) => (state === note.id ? null : note.id))
+                }
+              >
+                {viewMore !== note.id ? "⤵" : "⤴"}
               </p>
-              <p>{note.title}</p>
             </div>
-            <div className="flex items-center">
-              <button
-                onClick={() => dispatch(setEditingNote(note))}
-                className="cursor-pointer text-sm text-green-700 mr-4"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => dispatch(deleteNote(note.id))}
-                className="cursor-pointer text-sm text-red-700"
-              >
-                Delete
-              </button>
-            </div>
+
+            {viewMore === note.id && (
+              <>
+                <div className="mt-4">
+                  <h1 className="font-semibold underline underline-offset-2 ">
+                    Why I took this trade
+                  </h1>
+                  <p>{note.reasonForTrade}</p>
+                </div>
+                <div className="mt-4">
+                  <h1 className="font-semibold underline underline-offset-2 ">
+                    What I learned
+                  </h1>
+                  <p>{note.lessonLearned}</p>
+                </div>
+                <div className="flex gap-2 mt-4 ">
+                  <button
+                    onClick={() => dispatch(setEditingNote(note))}
+                    className="bg-green-100 p-2 w-full  cursor-pointer text-sm text-green-700 mr-4 rounded-md"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => dispatch(deleteNote(note.id))}
+                    className="bg-red-100 p-2 w-full  cursor-pointer text-sm text-red-700 rounded-md"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </li>
         ))}
       </ul>

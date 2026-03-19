@@ -66,8 +66,8 @@ function NoteForm() {
 
       // dispatch(updateNote(form));
     } else {
-      dispatch(addNote(form));
       console.log("form", form);
+      dispatch(addNote(form));
     }
     console.log("cancel");
     setIsImageExtracted(false);
@@ -130,7 +130,7 @@ function NoteForm() {
 
           <button
             type="submit"
-            className="w-[40%] bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
+            className="w-[70%] bg-blue-400 text-white py-3 rounded-md hover:bg-blue-500 transition"
           >
             {editingNote ? "Update photo" : "Add photo"}
           </button>
